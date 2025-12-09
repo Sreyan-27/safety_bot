@@ -1,0 +1,9 @@
+Flask==3.0.0
+tensorflow
+librosa
+numpy
+pydub
+soundfile
+whisper
+gunicorn
+
