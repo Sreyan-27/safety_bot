@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Safety Bot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+
+    header {
+      background-color: #0b3954;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo span { color: #ff6e40; }
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li { margin-left: 20px; }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+      white-space: nowrap;
+    }
+    nav ul li a:hover { color: #ff6e40; }
+
+    .back-arrow {
+      display: inline-block;
+      margin: 100px 0 20px 20px;
+      font-size: 1.2rem;
+      text-decoration: none;
+      color: #0b3954;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .back-arrow:hover { color: #ff6e40; }
+
+    .form-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      margin-top: 40px;
+    }
+
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      max-width: 500px;
+      width: 100%;
+      transition: 0.3s;
+    }
+    .form-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-header h2 span { color: #ff6e40; }
+    .form-header p { color: #555; }
+
+    .flash-message {
+      text-align: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+    }
+    .flash-success { background-color: #4CAF50; }
+    .flash-error { background-color: #f44336; }
+
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff6e40;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    .btn:hover { background-color: #ff854f; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #0b3954;
+      color: white;
+      margin-top: 50px;
+    }
+
+    @media(max-width:600px){
+      .form-section { padding: 20px 10px; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <div class="logo">Safety <span>Bot</span></div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('register_page') }}">Register</a></li>
+        <li><a href="{{ url_for('login_page') }}">Login</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Back to Welcome -->
+  <a href="{{ url_for('index') }}" class="back-arrow">← Back to Welcome</a>
+
+  <section class="form-section">
+    <div class="form-container">
+      <div class="form-header">
+        <img src="{{ url_for('static', filename='images/bot.png') }}" alt="Safety Bot" class="bot-icon" />
+        <h2>Join <span>Safety Bot</span></h2>
+        <p>Your safety, our priority.</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="post" action="{{ url_for('register') }}">
+        <div class="input-group">
+          <label>Customer Name</label>
+          <input type="text" name="name" placeholder="Enter your full name" required />
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="Enter your email" required />
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Set your password" required />
+        </div>
+
+        <div class="input-group">
+          <label>Relative Number 1 (+91)</label>
+          <input type="tel" name="relative1" pattern="^\+91[0-9]{10}$" placeholder="+91XXXXXXXXXX" required />
+        </div>
+
+        <div class="input-group">
+          <label>Relative Number 2 (+91)</label>
+          <input type="tel" name="relative2" pattern="^\+91[0-9]{10}$" placeholder="+91XXXXXXXXXX" required />
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Safety Bot</p>
+  </footer>
+
+</body>
+</html>

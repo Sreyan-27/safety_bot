@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Safety Bot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #001f3f, #004d7a, #008793);
+      color: #fff;
+      text-align: center;
+    }
+
+    header {
+      background-color: #0b3954;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo span { color: #ff6e40; }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li { margin-left: 20px; }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+      white-space: nowrap;
+    }
+    nav ul li a:hover { color: #ff6e40; }
+
+    .home-container {
+      margin: 120px auto 40px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 40px;
+      border-radius: 20px;
+      width: 600px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .bot-image {
+      width: 220px;
+      height: 220px;
+      margin: 20px auto;
+      display: block;
+      border-radius: 50%;
+      border: 5px solid #ffdf5d;
+      background: white;
+      object-fit: contain;
+      box-shadow: 0 0 20px rgba(255, 223, 93, 0.7);
+    }
+
+    h2 { font-size: 28px; margin-top: 10px; color: #ffdf5d; }
+    p { font-size: 16px; margin-bottom: 25px; }
+    button {
+      background-color: #ffdf5d;
+      color: #000;
+      border: none;
+      padding: 12px 25px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s;
+    }
+    button:hover { background-color: #ffd700; transform: scale(1.05); }
+    #status { margin-top: 20px; font-size: 16px; font-weight: 500; }
+
+    footer { text-align: center; padding: 20px; background-color: #0b3954; color: white; margin-top: 50px; }
+
+    @media(max-width:600px){
+      .home-container { width: 90%; padding: 30px; }
+      .bot-image { width: 160px; height: 160px; }
+      nav ul li { margin-left: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <div class="logo">Safety <span>Bot</span></div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('logout') }}">Back</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Home Section -->
+  <div class="home-container">
+    <img src="{{ url_for('static', filename='images/bot1.png') }}" alt="Safety Bot" class="bot-image">
+    <h2>Emergency Sound Detection</h2>
+    <p>Safety Bot is actively monitoring audio to detect emergency situations. Once a distress sound is detected, your selected contacts will be notified immediately.</p>
+
+    <button id="stopBtn" disabled>Stop Recording</button>
+    <p id="status">Requesting microphone access...</p>
+  </div>
+
+  <footer>
+    <p>© 2025 Safety Bot</p>
+  </footer>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        document.getElementById("status").innerText = "Recording... 🎙️";
+        document.getElementById("stopBtn").disabled = false;
+
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+
+        mediaRecorder.addEventListener("dataavailable", event => {
+          audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          audioChunks = [];
+          sendAudio(audioBlob);
+        });
+
+      } catch (err) {
+        document.getElementById("status").innerText = "❌ Microphone access denied!";
+        console.error(err);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        document.getElementById("status").innerText = "Processing audio...";
+        document.getElementById("stopBtn").disabled = true;
+      }
+    }
+
+    async function sendAudio(audioBlob) {
+      const formData = new FormData();
+      formData.append("audio_data", audioBlob, "recording.webm");
+
+      const response = await fetch("/process_audio", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      document.getElementById("status").innerText = result.message;
+    }
+
+    window.onload = () => {
+      startRecording();
+      document.getElementById("stopBtn").onclick = stopRecording;
+    };
+  </script>
+
+</body>
+</html>
