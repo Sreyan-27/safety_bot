@@ -1,7 +1,19 @@
+# Virtual environment
 venv/
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Audio & temp files
+backend/temp_audio/
+backend/test_audio/
+
+# ML models (too large)
+backend/models/
+backend/vosk-model*
+*.zip
+*.h5
+
+# OS
 .DS_Store
-.vscode/
-.idea/
-*.log
